@@ -1,0 +1,36 @@
+---
+import type { HistoryRow } from '../lib/db';
+
+interface Props {
+  rows: HistoryRow[]; // date ASC for the sparkline
+  width?: number;
+  height?: number;
+}
+
+const { rows, width = 560, height = 120 } = Astro.props;
+const pad = 8;
+const xs = rows.map((_, i) => (rows.length === 1 ? width / 2 : pad + (i * (width - pad * 2)) / (rows.length - 1)));
+const ys = rows.map((r) => pad + ((r.rank - 1) / 9) * (height - pad * 2));
+const points = xs.map((x, i) => `${x.toFixed(1)},${ys[i].toFixed(1)}`).join(' ');
+---
+{rows.length > 0 ? (
+  <svg viewBox={`0 0 ${width} ${height}`} class="h-auto w-full rounded-lg border border-slate-200 bg-white" role="img" aria-label="Rank over time (1 at top)">
+    {[1, 5, 10].map((rank) => {
+      const y = pad + ((rank - 1) / 9) * (height - pad * 2);
+      return (
+        <g>
+          <line x1={pad} x2={width - pad} y1={y} y2={y} stroke="#e2e8f0" stroke-dasharray="3 3" />
+          <text x={width - pad} y={y - 3} text-anchor="end" font-size="9" fill="#94a3b8">#{rank}</text>
+        </g>
+      );
+    })}
+    <polyline points={points} fill="none" stroke="#0f172a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+    {xs.map((x, i) => (
+      <circle cx={x} cy={ys[i]} r="3" fill="#0f172a">
+        <title>{`${rows[i].date} · ${rows[i].platform} · #${rows[i].rank}`}</title>
+      </circle>
+    ))}
+  </svg>
+) : (
+  <p class="text-sm text-slate-500">No history yet.</p>
+)}

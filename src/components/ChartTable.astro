@@ -1,0 +1,29 @@
+---
+import type { ChartRow } from '../lib/db';
+
+interface Props {
+  rows: ChartRow[];
+  caption?: string;
+}
+
+const { rows, caption } = Astro.props;
+
+function extra(r: ChartRow): string {
+  if (r.points != null) return `${r.points} pts`;
+  if (r.days_in_top10 != null) return `${r.days_in_top10}d`;
+  return '—';
+}
+---
+<div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
+  {caption && <h3 class="border-b border-slate-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-slate-500">{caption}</h3>}
+  <ol class="divide-y divide-slate-100">
+    {rows.map((r) => (
+      <li class="flex items-center gap-3 px-4 py-2.5">
+        <span class="w-6 shrink-0 text-center text-sm font-bold tabular-nums text-slate-400">{r.rank}</span>
+        <a href={`/title/${r.slug}/`} class="min-w-0 flex-1 truncate font-medium hover:underline">{r.title}</a>
+        <span class="shrink-0 text-xs tabular-nums text-slate-500">{extra(r)}</span>
+      </li>
+    ))}
+    {rows.length === 0 && <li class="px-4 py-6 text-sm text-slate-500">No entries for this chart.</li>}
+  </ol>
+</div>

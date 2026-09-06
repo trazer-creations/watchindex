@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+import ChartTable from '../components/ChartTable.astro';
+import { getLatestDate, getPlatforms, getChart, FEATURED_PLATFORMS } from '../lib/db';
+import { formatDate, platformLabel } from '../lib/format';
+
+const date = getLatestDate();
+const platforms = getPlatforms();
+const sections = FEATURED_PLATFORMS.filter((p) => platforms.includes(p)).map((p) => ({
+  platform: p,
+  movies: getChart(p, 'movie', date),
+  tv: getChart(p, 'tv', date),
+}));
+---
+<Base title={`Top 10 Streaming Charts — ${date}`} description="Latest daily FlixPatrol Top 10 movies and TV shows by platform." platforms={platforms}>
+  <div class="mb-6">
+    <p class="text-sm uppercase tracking-wide text-slate-500">Latest charts · {formatDate(date)}</p>
+    <h1 class="mt-1 text-3xl font-bold tracking-tight">Top 10 by platform</h1>
+    <p class="mt-2 max-w-2xl text-sm text-slate-600">
+      {sections.length} featured platforms · {sections.reduce((n, s) => n + s.movies.length + s.tv.length, 0)} entries ·
+      rebuilt daily from SQLite at build time.
+      <a href="/platform/" class="underline hover:text-slate-900">View all {platforms.length} platforms →</a>
+    </p>
+  </div>
+
+  <div class="grid gap-6 md:grid-cols-2">
+    {sections.map((s) => (
+      <section class="rounded-xl border border-slate-200 bg-white p-4">
+        <div class="mb-3 flex items-baseline justify-between">
+          <h2 class="text-lg font-semibold">{platformLabel(s.platform)}</h2>
+          <a href={`/platform/${s.platform}/`} class="text-sm text-slate-500 underline hover:text-slate-900">View all →</a>
+        </div>
+        <div class="grid gap-4">
+          <ChartTable rows={s.movies.slice(0, 5)} caption="Movies" />
+          <ChartTable rows={s.tv.slice(0, 5)} caption="TV shows" />
+        </div>
+      </section>
+    ))}
+  </div>
+</Base>

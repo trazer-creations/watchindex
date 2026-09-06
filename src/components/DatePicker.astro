@@ -1,0 +1,29 @@
+---
+import { formatDate, platformLabel } from '../lib/format';
+
+interface Props {
+  dates: string[];
+  platform: string;
+  current: string;
+}
+
+const { dates, platform, current } = Astro.props;
+---
+{dates.length > 1 ? (
+  <label class="flex flex-wrap items-center gap-2 text-sm">
+    <span class="text-slate-500">Archive:</span>
+    <select
+      class="rounded border border-slate-300 bg-white px-2 py-1"
+      onchange={`if(this.value) location.href=this.value`}
+    >
+      {dates.map((d) => (
+        <option value={d === current ? '' : `/platform/${platform}/${d}/`} selected={d === current}>
+          {formatDate(d)}{d === current ? ' (latest)' : ''}
+        </option>
+      ))}
+    </select>
+    <span class="text-slate-400">· {platformLabel(platform)}</span>
+  </label>
+) : (
+  <p class="text-sm text-slate-500">{formatDate(current)} · {platformLabel(platform)} · only date so far</p>
+)}

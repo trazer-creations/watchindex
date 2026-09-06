@@ -1,0 +1,37 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ChartTable from '../../../components/ChartTable.astro';
+import DatePicker from '../../../components/DatePicker.astro';
+import { getPlatforms, getPlatformDates, getChart } from '../../../lib/db';
+import { formatDate, platformLabel } from '../../../lib/format';
+
+export function getStaticPaths() {
+  const paths: { params: { platform: string; date: string } }[] = [];
+  for (const platform of getPlatforms()) {
+    for (const date of getPlatformDates(platform)) {
+      paths.push({ params: { platform, date } });
+    }
+  }
+  return paths;
+}
+
+const { platform, date } = Astro.params;
+const platforms = getPlatforms();
+const dates = getPlatformDates(platform);
+const movies = getChart(platform, 'movie', date);
+const tv = getChart(platform, 'tv', date);
+const isLatest = dates[0] === date;
+---
+<Base title={`${platformLabel(platform)} Top 10 — ${date}`} platforms={platforms} currentPlatform={platform}>
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <p class="text-sm uppercase tracking-wide text-slate-500">{formatDate(date)}{isLatest ? ' · latest' : ' · archive'}</p>
+      <h1 class="mt-1 text-3xl font-bold tracking-tight">{platformLabel(platform)} Top 10</h1>
+    </div>
+    <DatePicker dates={dates} platform={platform} current={date} />
+  </div>
+  <div class="grid gap-6 md:grid-cols-2">
+    <ChartTable rows={movies} caption="Movies" />
+    <ChartTable rows={tv} caption="TV shows" />
+  </div>
+</Base>

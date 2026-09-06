@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getPlatforms, getAllTitles } from '../../lib/db';
+
+const platforms = getPlatforms();
+const titles = getAllTitles();
+const groups = new Map<string, typeof titles>();
+for (const t of titles) {
+  const k = (t.title[0] || '#').toUpperCase();
+  if (!groups.has(k)) groups.set(k, []);
+  groups.get(k)!.push(t);
+}
+---
+<Base title="All titles" platforms={platforms}>
+  <h1 class="text-3xl font-bold tracking-tight">All titles</h1>
+  <p class="mt-2 text-sm text-slate-600">{titles.length} titles tracked.</p>
+  {[...groups.entries()].map(([letter, list]) => (
+    <section class="mt-6">
+      <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">{letter}</h2>
+      <ul class="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
+        {list.map((t) => (
+          <li><a href={`/title/${t.slug}/`} class="block truncate rounded border border-slate-200 bg-white px-3 py-2 hover:border-slate-400">{t.title}</a></li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</Base>
