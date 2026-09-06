@@ -2,3 +2,6 @@ node_modules/
 dist/
 .astro/
 .env
+.d1/
+.wrangler/
+.dev.vars

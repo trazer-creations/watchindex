@@ -1,0 +1,12 @@
+name = "flixpatrol"
+compatibility_date = "2026-09-01"
+
+# Local dev uses the local D1 replica; `--remote` targets production.
+# After `npx wrangler d1 create flixpatrol`, paste the printed database_id below
+# (and optionally create + paste a preview_database_id for preview deploys).
+[[d1_databases]]
+binding = "DB"
+database_name = "flixpatrol"
+database_id = "4e993d87-0818-4a0e-9ec5-baaab47c5731"
+# preview_database_id = "REPLACE_WITH_PREVIEW_ID"
+migrations_dir = "migrations"
